@@ -2,4 +2,4 @@
 finding next best move for using python and opencv
 
 
-# Feel free to contribute
+**Feel free to contribute**
