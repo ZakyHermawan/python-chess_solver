@@ -106,7 +106,7 @@ def find_board(original_image):
 
     return False, image, 0, 0
 
-def template_detection(image, template, threshold, bgr_color, counter):
+def template_detection(image, template, threshold, bgr_color, code, state, counter):
     gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     template_height, template_width = template.shape
     match_result = cv2.matchTemplate(gray_image, template, cv2.TM_CCOEFF_NORMED)
@@ -130,9 +130,12 @@ def template_detection(image, template, threshold, bgr_color, counter):
         
         # returning the position of chess piece in algebraic notation
         pos = template_position(start_row, start_col, board_height, board_width)
-        print(counter, pos)
-    return image
+        print(code, 'is on', pos)
+        state = add_current_state(code, pos, state)
+    return image, state
 
+# coordinate (Row, Column)
+# for example (0, 1) means on row 0 and column 1 ( (0, 0) is at the top left corner)
 def template_position(start_row, start_col, board_height, board_width):
     box_height = board_height / 8
     box_width = board_width / 8
@@ -140,9 +143,34 @@ def template_position(start_row, start_col, board_height, board_width):
     for i in range(8):
         for j in range(8):
             if box_height * i <= start_row + box_height/2 <= box_height * (i + 1) and box_width * j <= start_col + box_width / 2 <= box_width * (j + 1):
-                return chr(ord('A') + j) + str(i + 1)
+                return i, j
 
     return ''
+
+def add_current_state(code, pos, state):
+    state[pos[0]][pos[1]] = code
+    print(state[pos[0]][pos[1]], 'is on', (pos))
+    return state
+
+def fenParse(state):
+    fen = ''
+    for i in state:
+        counter = 0
+        for j in i:
+            if j == '':
+                counter += 1
+            else:
+                if counter != 0:
+                    fen += str(counter)
+                    counter = 0
+                
+                fen += j
+
+        if counter != 0:
+            fen += str(counter)
+        fen += '/'
+
+    return fen[:len(fen)-1]
 
 templates_path = [
     'assets/white_pawn.png',
@@ -157,6 +185,21 @@ templates_path = [
     'assets/black_queen.png',
     'assets/white_king.png',
     'assets/black_king.png'
+]
+
+notation = [
+    'P',
+    'p',
+    'N',
+    'n',
+    'B',
+    'b',
+    'R',
+    'r',
+    'Q',
+    'q',
+    'K',
+    'k'
 ]
 
 box_colors = [
@@ -174,11 +217,12 @@ box_colors = [
     (255, 100, 100),
 ]
 
-image = cv2.imread('assets/initial_board.png')
 
-global_threshold = 0.65
+state = [ ["" for _ in range(8)] for _ in range(8) ]
 
-board = cv2.imread('assets/board.png')
+global_threshold = 0.8
+
+board = cv2.imread('assets/puzzles/pp.png')
 origin = board
 
 is_found, found_board, board_height, board_width = find_board(board)
@@ -186,12 +230,18 @@ is_found, found_board, board_height, board_width = find_board(board)
 
 # pieces detection
 counter = 0
-for path, color in zip(templates_path, box_colors):
+for path, color, code in zip(templates_path, box_colors, notation):
     template = cv2.imread(path, 0)
     counter += 1
-    found_board = template_detection(found_board, template, global_threshold, color, counter)
+    found_board, state = template_detection(found_board, template, global_threshold, color, code, state, counter)
     
 
 cv2.imshow('found_board', found_board)
+
+fen = fenParse(state)
+print('Fen notation:', fen)
+
+for i in state:
+    print(i)
 
 cv2.waitKey(0)
