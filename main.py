@@ -128,7 +128,7 @@ def template_detection(image, template, threshold, bgr_color, counter):
     for (start_col, start_row, end_col, end_row) in pick:
         cv2.rectangle(image, (start_col, start_row), (end_col, end_row), bgr_color, 2)
         
-        # kembalikan koordinat
+        # returning the position of chess piece in algebraic notation
         pos = template_position(start_row, start_col, board_height, board_width)
         print(counter, pos)
     return image
@@ -191,9 +191,6 @@ for path, color in zip(templates_path, box_colors):
     counter += 1
     found_board = template_detection(found_board, template, global_threshold, color, counter)
     
-
-
-# template_detection(found_board, template, global_threshold, color)
 
 cv2.imshow('found_board', found_board)
 
