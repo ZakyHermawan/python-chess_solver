@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+from stockfish import Stockfish
 from imutils.object_detection import non_max_suppression
 
 def find_board(original_image):
@@ -152,7 +153,7 @@ def add_current_state(code, pos, state):
     print(state[pos[0]][pos[1]], 'is on', (pos))
     return state
 
-def fenParse(state):
+def state_to_fen(state):
     fen = ''
     for i in state:
         counter = 0
@@ -220,9 +221,9 @@ box_colors = [
 
 state = [ ["" for _ in range(8)] for _ in range(8) ]
 
-global_threshold = 0.8
+global_threshold = 0.7
 
-board = cv2.imread('assets/puzzles/pp.png')
+board = cv2.imread('assets/puzzles/as.png')
 origin = board
 
 is_found, found_board, board_height, board_width = find_board(board)
@@ -238,10 +239,20 @@ for path, color, code in zip(templates_path, box_colors, notation):
 
 cv2.imshow('found_board', found_board)
 
-fen = fenParse(state)
+fen = state_to_fen(state)
 print('Fen notation:', fen)
 
+full_fen = fen + ' w - - 0 1'
+print(full_fen)
 for i in state:
     print(i)
+
+stockfish = Stockfish('stockfish_13_win_x64/stockfish_13_win_x64.exe', parameters={"Threads": 2, "Minimum Thinking Time": 30})
+
+stockfish.set_depth(15)
+stockfish.set_fen_position(full_fen)
+
+move = stockfish.get_best_move()
+print('Best move:', move)
 
 cv2.waitKey(0)
