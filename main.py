@@ -4,10 +4,30 @@ from stockfish import Stockfish
 from imutils.object_detection import non_max_suppression
 
 def find_board(original_image):
+    recognizable_shades = [0, 17, 51, 100]
+    white_background_shade = 17
+
+    print(original_image[462, 466])
+
     kernelH = np.array([[-1, 1]])
     kernelV = np.array([[-1],[1]])
 
+    img_height, img_width = original_image.shape[0], original_image.shape[1]
+
+    tmp = []
+
+    for i in range(1, img_height-1):
+        for j in range(1, img_width-1):
+            if original_image[i][j][2] > 200 and (original_image[i][j][0] < 200 or original_image[i][j][1] < 200):
+                tmp.append((i, j))
+
+    for i in tmp:
+        original_image[i[0], i[1]] = (181, 217, 240)
+        
+
     image = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
+
+    cv2.imshow('converted', image)
 
     # Filter horizontal lines :
     horizontal_lines = np.absolute(cv2.filter2D(image.astype('float'),-1,kernelV))
@@ -45,9 +65,11 @@ def find_board(original_image):
             column_end = idx        
 
     # Filter vertical lines:
-    vertical_lines = np.absolute(cv2.filter2D(image.astype('float'),-1,kernelH))
+    filtered_image = cv2.filter2D(image.astype('float'),-1,kernelH)
+    vertical_lines = np.absolute(filtered_image)
     ret,thresh1 = cv2.threshold(vertical_lines,30,255,cv2.THRESH_BINARY)
-    
+    cv2.imshow('filtered', np.absolute(filtered_image))
+    cv2.waitKey(0)
     kernelSmall = np.ones((3,1), np.uint8)
     kernelBig = np.ones((50,1), np.uint8)
     
@@ -96,6 +118,8 @@ def find_board(original_image):
             found_board = True
     else:
         print("We did not found the borders of the board")
+        import sys
+        sys.exit(0)
 
     if found_board:
         height = row_end-row_start
@@ -173,6 +197,14 @@ def state_to_fen(state):
 
     return fen[:len(fen)-1]
 
+def reverse_fen(state):
+    new_state = [ [ '' for _ in range(8) ] for _ in range(8) ]
+    for i in range(8):
+        for j in range(8):
+            new_state[i][j] = state[7-i][7-j]
+
+    return new_state
+
 templates_path = [
     'assets/white_pawn.png',
     'assets/black_pawn.png',
@@ -223,11 +255,11 @@ state = [ ["" for _ in range(8)] for _ in range(8) ]
 
 global_threshold = 0.7
 
-board = cv2.imread('assets/puzzles/as.png')
+board = cv2.imread('assets/puzzles/tes.png')
+cv2.imshow('blek', board)
 origin = board
 
 is_found, found_board, board_height, board_width = find_board(board)
-
 
 # pieces detection
 counter = 0
@@ -236,13 +268,24 @@ for path, color, code in zip(templates_path, box_colors, notation):
     counter += 1
     found_board, state = template_detection(found_board, template, global_threshold, color, code, state, counter)
     
-
+print(state)
 cv2.imshow('found_board', found_board)
 
+who_to_play = 'w'
+
+if who_to_play == 'b':
+    state = reverse_fen(state)
+
 fen = state_to_fen(state)
+
+
 print('Fen notation:', fen)
 
-full_fen = fen + ' w - - 0 1'
+
+
+full_fen = "{} {} - - 0 1".format(fen, who_to_play)
+
+
 print(full_fen)
 for i in state:
     print(i)
