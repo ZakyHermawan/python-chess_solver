@@ -274,6 +274,7 @@ full_fen = "{} {} - - 0 1".format(fen, who_to_play)
 
 
 print('Fen notation:', full_fen)
+
 for i in state:
     print(i)
 
