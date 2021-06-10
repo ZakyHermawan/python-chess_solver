@@ -7,6 +7,8 @@ from screenshot_window import ScreenshotWindow
 from best_move_window import BestMoveWindow
 
 import cv2
+from stockfish import Stockfish
+
 from chess import find_board, template_detection, reverse_fen, state_to_fen
 
 class MasterWindow(Ui_MainWindow, QMainWindow):
@@ -20,6 +22,7 @@ class MasterWindow(Ui_MainWindow, QMainWindow):
 
         self.ss_window.pushButton.clicked.connect(self.screenshot_wrapper)
         self.ss_window.closeEvent = self.destroyAllWindow
+        self.screenshot_taken = False
 
         self.ss_window.show()
 
@@ -82,11 +85,17 @@ class MasterWindow(Ui_MainWindow, QMainWindow):
 
         self.full_fen = ''
 
+
     def destroyAllWindow(self, event):
         self.ss_window.close()
-        self.best_move_window.close()
+
+        if self.screenshot_taken:
+            self.best_move_window.close()
+
 
     def screenshot_wrapper(self):
+        self.screenshot_taken = True
+
         board_image = self.take_screenshot()
         found_board = self.board_detection(board_image)
 
@@ -100,6 +109,15 @@ class MasterWindow(Ui_MainWindow, QMainWindow):
 
         self.best_move_window = BestMoveWindow()
         self.best_move_window.show()
+
+    def get_best_move(self, full_fen):
+        stockfish = Stockfish('stockfish_13_win_x64/stockfish_13_win_x64.exe')
+
+        stockfish.set_depth(15)
+        stockfish.set_fen_position(full_fen)
+
+        move = stockfish.get_best_move()
+        print('Best move:', move)
 
 
     def take_screenshot(self):

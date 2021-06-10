@@ -47,6 +47,9 @@ class Ui_Form(object):
         self.comboBox.addItem("")
         self.comboBox.addItem("")
         self.gridLayout.addWidget(self.comboBox, 1, 1, 1, 1)
+        self.pushButton = QtWidgets.QPushButton(self.gridLayoutWidget)
+        self.pushButton.setObjectName("pushButton")
+        self.gridLayout.addWidget(self.pushButton, 4, 1, 1, 1)
         self.textBrowser = QtWidgets.QTextBrowser(Form)
         self.textBrowser.setGeometry(QtCore.QRect(190, 210, 201, 31))
         self.textBrowser.setObjectName("textBrowser")
@@ -68,6 +71,7 @@ class Ui_Form(object):
         self.checkBox_4.setText(_translate("Form", "Black O-O-O"))
         self.comboBox.setItemText(0, _translate("Form", "White to play"))
         self.comboBox.setItemText(1, _translate("Form", "Black to play"))
+        self.pushButton.setText(_translate("Form", "Get Best Move"))
         self.label.setText(_translate("Form", "Best Move: "))
 
 
