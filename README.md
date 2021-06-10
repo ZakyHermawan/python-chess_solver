@@ -7,9 +7,9 @@ finding next best move for using python and opencv
 * [x] Puzzle solver work for white
 * [x] Puzzle solver work for black
 * [x] Create simple GUI for user setting / main menu
-* [ ] Move all logic to GUI
+* [x] Move all logic to GUI
 * [ ] Take screenshot from GUI
-* [ ] Get best move from GUI
+* [x] Get best move from GUI
 
 
 **Feel free to contribute**

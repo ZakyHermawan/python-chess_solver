@@ -26,6 +26,8 @@ class MasterWindow(Ui_MainWindow, QMainWindow):
 
         self.ss_window.show()
 
+        self.best_move_window = None
+
         # initiate member variables
 
         self.templates_path = [
@@ -104,11 +106,20 @@ class MasterWindow(Ui_MainWindow, QMainWindow):
         cv2.imshow('found', found_board)
 
         full_fen = self.get_full_fen(state)
+        self.full_fen = full_fen
 
         print(full_fen)
+        print(state)
 
         self.best_move_window = BestMoveWindow()
+        self.best_move_window.pushButton.clicked.connect(self.best_move_wrapper)
+        self.best_move_window.textBrowser.setFontPointSize(12)
         self.best_move_window.show()
+
+
+    def best_move_wrapper(self):
+        self.get_best_move(self.full_fen)
+
 
     def get_best_move(self, full_fen):
         stockfish = Stockfish('stockfish_13_win_x64/stockfish_13_win_x64.exe')
@@ -118,6 +129,8 @@ class MasterWindow(Ui_MainWindow, QMainWindow):
 
         move = stockfish.get_best_move()
         print('Best move:', move)
+
+        self.best_move_window.textBrowser.append(move)
 
 
     def take_screenshot(self):
@@ -149,7 +162,8 @@ class MasterWindow(Ui_MainWindow, QMainWindow):
         fen = self.get_fen(state)
 
         full_fen = "{} {} - - 0 1".format(fen, self.who_to_play)
-
+        for i in state:
+            print(i)
         return full_fen
 
 
