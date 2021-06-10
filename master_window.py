@@ -196,7 +196,20 @@ class MasterWindow(Ui_MainWindow, QMainWindow):
 
         fen = self.get_fen(state)
 
-        full_fen = "{} {} - - 0 1".format(fen, self.who_to_play)
+        castle = ''
+        if self.best_move_window.checkBox.isChecked():
+            castle += 'K'
+        if self.best_move_window.checkBox_2.isChecked():
+            castle += 'Q'
+        if self.best_move_window.checkBox_3.isChecked():
+            castle += 'k'
+        if self.best_move_window.checkBox_4.isChecked():
+            castle += 'q'
+
+        if castle == '':
+            castle = '-'
+
+        full_fen = "{} {} {} - 0 1".format(fen, self.who_to_play, castle)
         for i in state:
             print(i)
         return full_fen
