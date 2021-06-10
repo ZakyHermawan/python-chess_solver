@@ -7,10 +7,15 @@ from screenshot_window import ScreenshotWindow
 from best_move_window import BestMoveWindow
 
 import cv2
+import time
+import pyautogui
+import numpy as np
+
 from stockfish import Stockfish
 
 from chess import find_board, template_detection, reverse_fen, state_to_fen
 
+# catt: clean semua informasi mengenai board jika ingin screenshot lagi
 class MasterWindow(Ui_MainWindow, QMainWindow):
     def __init__(self):
         Ui_MainWindow.__init__(self)
@@ -27,6 +32,7 @@ class MasterWindow(Ui_MainWindow, QMainWindow):
         self.ss_window.show()
 
         self.best_move_window = None
+        self.best_move_taken = False
 
         # initiate member variables
 
@@ -77,8 +83,6 @@ class MasterWindow(Ui_MainWindow, QMainWindow):
 
         self.global_threshold = 0.7
 
-        self.state = [ ["" for _ in range(8)] for _ in range(8) ]
-
         self.who_to_play = 'b'
 
         self.found_board = []
@@ -86,6 +90,8 @@ class MasterWindow(Ui_MainWindow, QMainWindow):
         self.fen = ''
 
         self.full_fen = ''
+
+        self.stockfish = None
 
 
     def destroyAllWindow(self, event):
@@ -96,25 +102,39 @@ class MasterWindow(Ui_MainWindow, QMainWindow):
 
 
     def screenshot_wrapper(self):
-        self.screenshot_taken = True
+
+        if self.best_move_window != None:
+            self.best_move_window.hide()
+
+
+        self.ss_window.hide()
+        time.sleep(1)
 
         board_image = self.take_screenshot()
         found_board = self.board_detection(board_image)
 
         found_board, state = self.detect_pieces(found_board)
 
-        cv2.imshow('found', found_board)
 
         full_fen = self.get_full_fen(state)
         self.full_fen = full_fen
 
         print(full_fen)
-        print(state)
-
-        self.best_move_window = BestMoveWindow()
-        self.best_move_window.pushButton.clicked.connect(self.best_move_wrapper)
-        self.best_move_window.textBrowser.setFontPointSize(12)
+        
+        for i in state:
+            print(i)
+        
+        
+        if not self.screenshot_taken:
+            self.best_move_window = BestMoveWindow()
+            self.best_move_window.pushButton.clicked.connect(self.best_move_wrapper)
+            self.best_move_window.textBrowser.setFontPointSize(12)
+        
         self.best_move_window.show()
+        
+        self.ss_window.show()
+
+        self.screenshot_taken = True
 
 
     def best_move_wrapper(self):
@@ -122,19 +142,26 @@ class MasterWindow(Ui_MainWindow, QMainWindow):
 
 
     def get_best_move(self, full_fen):
-        stockfish = Stockfish('stockfish_13_win_x64/stockfish_13_win_x64.exe')
+        if not self.best_move_taken:
+            self.stockfish = Stockfish('stockfish_13_win_x64/stockfish_13_win_x64.exe')
 
-        stockfish.set_depth(15)
-        stockfish.set_fen_position(full_fen)
+            self.stockfish.set_depth(15)
+        
+        self.stockfish.set_fen_position(full_fen)
 
-        move = stockfish.get_best_move()
+        move = self.stockfish.get_best_move()
         print('Best move:', move)
 
         self.best_move_window.textBrowser.append(move)
 
+        self.best_move_taken = True
+
 
     def take_screenshot(self):
-        board_image = cv2.imread('assets/puzzles/blek.png')
+        # board_image = cv2.imread('assets/puzzles/blek.png')
+        img = pyautogui.screenshot()
+        board_image = np.array(img)
+        board_image = board_image[:, :, ::-1].copy()
         return board_image
 
 
@@ -147,12 +174,13 @@ class MasterWindow(Ui_MainWindow, QMainWindow):
 
     def detect_pieces(self, board_image):
         
+        state = [ ["" for _ in range(8)] for _ in range(8) ]
         for path, color, code in zip(self.templates_path, self.box_colors, self.notation):
             template = cv2.imread(path, 0)
     
-            board_image, self.state = template_detection(board_image, template, self.global_threshold, color, code, self.state)
+            board_image, state = template_detection(board_image, template, self.global_threshold, color, code, state)
 
-        return board_image, self.state
+        return board_image, state
 
 
     def get_full_fen(self, state):

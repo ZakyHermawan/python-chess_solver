@@ -10,6 +10,8 @@ finding next best move for using python and opencv
 * [x] Move all logic to GUI
 * [ ] Take screenshot from GUI
 * [x] Get best move from GUI
+* [ ] Dynamic update condition via GUI
+* [x] Solve puzzle without restart application
 
 
 **Feel free to contribute**
