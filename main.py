@@ -1,9 +1,9 @@
 import sys
-import pyautogui
+# import pyautogui
 from stockfish import Stockfish
 
 from chess import *
-from ss_window import ScreenshotWindow
+from master_window import MasterWindow
 
 from PyQt5.QtWidgets import QApplication
 
@@ -11,8 +11,8 @@ class App(QApplication):
     def __init__(self, sys_argv):
         super().__init__(sys_argv)
 
-        self.main_window = ScreenshotWindow()
-        self.main_window.show()
+        self.main_window = MasterWindow()
+        self.main_window.hide()
 
 
 templates_path = [
@@ -66,6 +66,7 @@ state = [ ["" for _ in range(8)] for _ in range(8) ]
 global_threshold = 0.7
 
 if __name__ == '__main__':
+    print(sys.argv)
     app = App(sys.argv)
     
     sys.exit(app.exec_())
@@ -89,7 +90,6 @@ if who_to_play == 'b':
 fen = state_to_fen(state)
 
 full_fen = "{} {} - - 0 1".format(fen, who_to_play)
-
 
 print('Fen notation:', full_fen)
 for i in state:
