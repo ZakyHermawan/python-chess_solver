@@ -1,6 +1,4 @@
-from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QMainWindow
-from numpy.core.numeric import full
 
 from ui_screenshot import Ui_MainWindow
 from screenshot_window import ScreenshotWindow
@@ -158,7 +156,6 @@ class MasterWindow(Ui_MainWindow, QMainWindow):
 
 
     def take_screenshot(self):
-        # board_image = cv2.imread('assets/puzzles/blek.png')
         img = pyautogui.screenshot()
         board_image = np.array(img)
         board_image = board_image[:, :, ::-1].copy()

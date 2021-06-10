@@ -1,5 +1,4 @@
 import sys
-# import pyautogui
 from stockfish import Stockfish
 
 from chess import *
