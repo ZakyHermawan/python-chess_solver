@@ -83,9 +83,11 @@ class MasterWindow(Ui_MainWindow, QMainWindow):
 
         self.global_threshold = 0.7
 
-        self.who_to_play = 'b'
+        self.who_to_play = ''
 
         self.found_board = []
+
+        self.state = []
 
         self.fen = ''
 
@@ -115,19 +117,16 @@ class MasterWindow(Ui_MainWindow, QMainWindow):
 
         found_board, state = self.detect_pieces(found_board)
 
+        # only used for finding best move
+        self.state = state
 
-        full_fen = self.get_full_fen(state)
-        self.full_fen = full_fen
-
-        print(full_fen)
-        
         for i in state:
             print(i)
         
         
         if not self.screenshot_taken:
             self.best_move_window = BestMoveWindow()
-            self.best_move_window.pushButton.clicked.connect(self.best_move_wrapper)
+            self.best_move_window.pushButton.clicked.connect(self.get_best_move)
             self.best_move_window.textBrowser.setFontPointSize(12)
         
         self.best_move_window.show()
@@ -137,11 +136,12 @@ class MasterWindow(Ui_MainWindow, QMainWindow):
         self.screenshot_taken = True
 
 
-    def best_move_wrapper(self):
-        self.get_best_move(self.full_fen)
+    def get_best_move(self):
 
+        full_fen = self.get_full_fen(self.state)
 
-    def get_best_move(self, full_fen):
+        print(full_fen)
+        
         if not self.best_move_taken:
             self.stockfish = Stockfish('stockfish_13_win_x64/stockfish_13_win_x64.exe')
 
@@ -184,6 +184,13 @@ class MasterWindow(Ui_MainWindow, QMainWindow):
 
 
     def get_full_fen(self, state):
+        who_to_play = str(self.best_move_window.comboBox.currentText())
+
+        if who_to_play == 'White to play':
+            self.who_to_play = 'w'
+        else:
+            self.who_to_play = 'b'
+
         if self.who_to_play == 'b':
             state = reverse_fen(state)
 

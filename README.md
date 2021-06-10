@@ -8,9 +8,9 @@ finding next best move for using python and opencv
 * [x] Puzzle solver work for black
 * [x] Create simple GUI for user setting / main menu
 * [x] Move all logic to GUI
-* [ ] Take screenshot from GUI
+* [x] Take screenshot from GUI
 * [x] Get best move from GUI
-* [ ] Dynamic update condition via GUI
+* [x] Dynamic update condition via GUI
 * [x] Solve puzzle without restart application
 
 
