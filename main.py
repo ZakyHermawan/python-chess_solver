@@ -66,7 +66,6 @@ state = [ ["" for _ in range(8)] for _ in range(8) ]
 global_threshold = 0.7
 
 if __name__ == '__main__':
-    print(sys.argv)
     app = App(sys.argv)
     
     sys.exit(app.exec_())

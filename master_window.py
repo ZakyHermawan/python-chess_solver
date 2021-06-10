@@ -4,6 +4,7 @@ from numpy.core.numeric import full
 
 from ui_screenshot import Ui_MainWindow
 from screenshot_window import ScreenshotWindow
+from best_move_window import BestMoveWindow
 
 import cv2
 from chess import find_board, template_detection, reverse_fen, state_to_fen
@@ -18,6 +19,7 @@ class MasterWindow(Ui_MainWindow, QMainWindow):
         self.ss_window = ScreenshotWindow()
 
         self.ss_window.pushButton.clicked.connect(self.screenshot_wrapper)
+        self.ss_window.closeEvent = self.destroyAllWindow
 
         self.ss_window.show()
 
@@ -79,7 +81,10 @@ class MasterWindow(Ui_MainWindow, QMainWindow):
         self.fen = ''
 
         self.full_fen = ''
-    
+
+    def destroyAllWindow(self, event):
+        self.ss_window.close()
+        self.best_move_window.close()
 
     def screenshot_wrapper(self):
         board_image = self.take_screenshot()
@@ -93,8 +98,10 @@ class MasterWindow(Ui_MainWindow, QMainWindow):
 
         print(full_fen)
 
-        
-        
+        self.best_move_window = BestMoveWindow()
+        self.best_move_window.show()
+
+
     def take_screenshot(self):
         board_image = cv2.imread('assets/puzzles/blek.png')
         return board_image
@@ -106,23 +113,6 @@ class MasterWindow(Ui_MainWindow, QMainWindow):
         is_found, found_board, board_height, board_width = find_board(board_image)
 
         return found_board
-
-        found_board, self.state = self.detect_pieces(board_image)
-        
-        cv2.imshow('match', found_board)
-        if self.who_to_play == 'b':
-            self.state = reverse_fen(self.state)
-
-        self.fen = self.get_fen(self.state)
-
-        self.full_fen = "{} {} - - 0 1".format(self.fen, self.who_to_play)
-
-
-        for i in self.state:
-            print(i)
-
-        return found_board
-
 
     def detect_pieces(self, board_image):
         

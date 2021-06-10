@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QMainWindow
+from PyQt5.QtWidgets import QMainWindow
 from ui_screenshot import Ui_MainWindow
 
 class ScreenshotWindow(Ui_MainWindow, QMainWindow):
