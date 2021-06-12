@@ -134,8 +134,6 @@ def template_detection(image, template, threshold, bgr_color, code, state):
     board_height = image.shape[0]
     board_width = image.shape[1]
 
-    mmr = cv2.minMaxLoc(match_result)
-
     rects = []
 
     (j_coordinates, i_coordinates) = np.where(match_result >= threshold)
