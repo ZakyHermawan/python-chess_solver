@@ -12,7 +12,7 @@ How to use this app
 
 Make sure, while taking screenshot, the chessboard is on the screen
 Below is an example on how to take the screenshot
-![screenshot example] (assets/ss_example.png)
+![screenshot example](assets/ss_example.png)
 
 **TODO:**
 
