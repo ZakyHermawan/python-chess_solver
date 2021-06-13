@@ -11,6 +11,7 @@ How to use this app
 6. Run [main.py](main.py)
 
 Make sure, while taking screenshot, the chessboard is on the screen
+
 Below is an example on how to take the screenshot
 ![screenshot example](assets/ss_example.png)
 
